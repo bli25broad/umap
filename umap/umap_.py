@@ -1302,7 +1302,7 @@ class UMAP(BaseEstimator):
             raise ValueError("n_epochs must be a positive integer "
                              "larger than 10")
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, knn_indices = None, knn_dists = None):
         """Fit X into an embedded space.
 
         Optionally use y for supervised dimension reduction.
@@ -1399,16 +1399,22 @@ class UMAP(BaseEstimator):
             )
         else:
             self._small_data = False
+
             # Standard case
-            (self._knn_indices, self._knn_dists, self._rp_forest) = nearest_neighbors(
-                X,
-                self._n_neighbors,
-                self.metric,
-                self._metric_kwds,
-                self.angular_rp_forest,
-                random_state,
-                self.verbose,
-            )
+            if knn_indices is not None and knn_dists is not None:
+                self._knn_indices = knn_indices
+                self._knn_dists = knn_dists
+                self._rp_forest = []
+            else:
+                (self._knn_indices, self._knn_dists, self._rp_forest) = nearest_neighbors(
+                    X,
+                    self._n_neighbors,
+                    self.metric,
+                    self._metric_kwds,
+                    self.angular_rp_forest,
+                    random_state,
+                    self.verbose,
+                )
 
             self.graph_ = fuzzy_simplicial_set(
                 X,
@@ -1548,7 +1554,7 @@ class UMAP(BaseEstimator):
 
         return self
 
-    def fit_transform(self, X, y=None):
+    def fit_transform(self, X, y=None, knn_indices = None, knn_dists = None):
         """Fit X into an embedded space and return that transformed
         output.
 
@@ -1569,7 +1575,7 @@ class UMAP(BaseEstimator):
         X_new : array, shape (n_samples, n_components)
             Embedding of the training data in low-dimensional space.
         """
-        self.fit(X, y)
+        self.fit(X, y, knn_indices, knn_dists)
         return self.embedding_
 
     def transform(self, X):
