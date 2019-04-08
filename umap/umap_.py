@@ -458,7 +458,7 @@ def fuzzy_simplicial_set(
             X, n_neighbors, metric, metric_kwds, angular, random_state, verbose=verbose
         )
 
-    sigmas, rhos, totn = smooth_knn_dist(
+    sigmas, rhos = smooth_knn_dist(
         knn_dists, n_neighbors, local_connectivity=local_connectivity
     )
 
@@ -1438,7 +1438,7 @@ class UMAP(BaseEstimator):
                 self.angular_rp_forest,
                 self.set_op_mix_ratio,
                 self.local_connectivity,
-                self.verbose,
+                self.verbose
             )
 
             self._search_graph = scipy.sparse.lil_matrix(
