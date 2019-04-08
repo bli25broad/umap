@@ -44,7 +44,8 @@ MIN_K_DIST_SCALE = 1e-3
 NPY_INFINITY = np.inf
 
 
-@numba.njit(parallel=True, fastmath=True)
+# @numba.njit(parallel=True, fastmath=True)
+@numba.njit(fastmath=True)
 def smooth_knn_dist(distances, k, n_iter=64, local_connectivity=1.0, bandwidth=1.0):
     """Compute a continuous version of the distance to the kth nearest
     neighbor. That is, this is similar to knn-distance but allows continuous
@@ -87,6 +88,8 @@ def smooth_knn_dist(distances, k, n_iter=64, local_connectivity=1.0, bandwidth=1
     target = np.log2(k) * bandwidth
     rho = np.zeros(distances.shape[0])
     result = np.zeros(distances.shape[0])
+
+    global_mean = np.mean(distances)
 
     for i in range(distances.shape[0]):
         lo = 0.0
@@ -134,13 +137,20 @@ def smooth_knn_dist(distances, k, n_iter=64, local_connectivity=1.0, bandwidth=1
 
         result[i] = mid
 
-        # TODO: This is very inefficient, but will do for now. FIXME
+        # # TODO: This is very inefficient, but will do for now. FIXME
+        # if rho[i] > 0.0:
+        #     if result[i] < MIN_K_DIST_SCALE * np.mean(ith_distances):
+        #         result[i] = MIN_K_DIST_SCALE * np.mean(ith_distances)
+        # else:
+        #     if result[i] < MIN_K_DIST_SCALE * np.mean(distances):
+        #         result[i] = MIN_K_DIST_SCALE * np.mean(distances)
         if rho[i] > 0.0:
-            if result[i] < MIN_K_DIST_SCALE * np.mean(ith_distances):
-                result[i] = MIN_K_DIST_SCALE * np.mean(ith_distances)
+            means_i = np.mean(ith_distances)
+            if result[i] < MIN_K_DIST_SCALE * means_i:
+                result[i] = MIN_K_DIST_SCALE * means_i
         else:
-            if result[i] < MIN_K_DIST_SCALE * np.mean(distances):
-                result[i] = MIN_K_DIST_SCALE * np.mean(distances)
+            if result[i] < MIN_K_DIST_SCALE * global_mean:
+                result[i] = MIN_K_DIST_SCALE * global_mean
 
     return result, rho
 
@@ -268,7 +278,8 @@ def nearest_neighbors(
     return knn_indices, knn_dists, rp_forest
 
 
-@numba.njit(parallel=True, fastmath=True)
+# @numba.njit(parallel=True, fastmath=True)
+@numba.njit(fastmath=True)
 def compute_membership_strengths(knn_indices, knn_dists, sigmas, rhos):
     """Construct the membership strength data for the 1-skeleton of each local
     fuzzy simplicial set -- this is formed as a sparse matrix where each row is
@@ -447,7 +458,7 @@ def fuzzy_simplicial_set(
             X, n_neighbors, metric, metric_kwds, angular, random_state, verbose=verbose
         )
 
-    sigmas, rhos = smooth_knn_dist(
+    sigmas, rhos, totn = smooth_knn_dist(
         knn_dists, n_neighbors, local_connectivity=local_connectivity
     )
 
