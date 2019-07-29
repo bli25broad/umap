@@ -5,7 +5,7 @@ def readme():
         return readme_file.read()
 
 configuration = {
-    'name' : 'umap-learn',
+    'name' : 'umap-learn-modified',
     'version': '0.3.8',
     'description' : 'Uniform Manifold Approximation and Projection',
     'long_description' : readme(),
