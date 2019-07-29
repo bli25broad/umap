@@ -7,7 +7,7 @@ def readme():
 configuration = {
     'name' : 'umap-learn-modified',
     'version': '0.3.8',
-    'description' : 'Uniform Manifold Approximation and Projection',
+    'description' : 'Forked from umap-learn (https://github.com/lmcinnes/umap). Change API so that UMAP accepts precomputed KNN input, rather than always calculating by itself. Remove numba.njit parallel option to avoid delay in the cloud.',
     'long_description' : readme(),
     'classifiers' : [
         'Development Status :: 3 - Alpha',
@@ -26,9 +26,9 @@ configuration = {
         'Programming Language :: Python :: 3.6',
     ],
     'keywords' : 'dimension reduction t-sne manifold',
-    'url' : 'http://github.com/lmcinnes/umap',
-    'maintainer' : 'Leland McInnes',
-    'maintainer_email' : 'leland.mcinnes@gmail.com',
+    'url' : 'https://github.com/lilab-bcb/umap',
+    'maintainer' : 'Bo Li',
+    'maintainer_email' : 'bli28@mgh.harvard.edu',
     'license' : 'BSD',
     'packages' : ['umap'],
     'install_requires': ['numpy >= 1.13',
